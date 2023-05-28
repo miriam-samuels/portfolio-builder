@@ -58,4 +58,6 @@ func GenerateToken(userId string) (string, error) {
 }
 
 
-func verifyToken(token string)
+func verifyToken(token string){
+	
+}
