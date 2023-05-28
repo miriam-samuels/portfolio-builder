@@ -2,20 +2,23 @@
 
 CREATE DATABASE portfolio;
 
+USE portfolio;
+
 CREATE TABLE users(
-   username VARCHAR(30)
-   email VARCHAR(45)
-   password VARCHAR(100)
-   first_name VARCHAR(45)
-   last_name VARCHAR(45)
-   phone VARCHAR(20)
-   github VARCHAR(45)
-   medium VARCHAR(45)
-   twitter VARCHAR(45)
-   linkedin VARCHAR(45)
-   objective VARCHAR(400)
-   tagline VARCHAR(150)
-   skills JSON
-   projects JSON
-   theme VARCHAR(30)
+   id VARCHAR(40) PRIMARY KEY,
+   username VARCHAR(30) NOT NULL ,
+   password VARCHAR(100) NOT NULL,
+   email VARCHAR(45) DEFAULT '',
+   first_name VARCHAR(45) DEFAULT '',
+   last_name VARCHAR(45) DEFAULT '',
+   phone VARCHAR(20) DEFAULT '',
+   github VARCHAR(45) DEFAULT '',
+   medium VARCHAR(45) DEFAULT '',
+   twitter VARCHAR(45) DEFAULT '',
+   linkedin VARCHAR(45) DEFAULT '',
+   objective VARCHAR(400) DEFAULT '',
+   tagline VARCHAR(150) DEFAULT '',
+   skills JSON,
+   projects JSON,
+   theme VARCHAR(30) DEFAULT ''
 );

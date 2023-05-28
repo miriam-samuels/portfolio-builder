@@ -8,11 +8,9 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/miriam-samuels/src/database"
+	conn "github.com/miriam-samuels/src/database"
 	userModels "github.com/miriam-samuels/src/models/user"
 )
-
-var db = database.PortfolioDb
 
 func GetUserInfo(w http.ResponseWriter, r *http.Request) {
 	// get variable in request url
@@ -23,14 +21,14 @@ func GetUserInfo(w http.ResponseWriter, r *http.Request) {
 	var user userModels.UserInfo
 
 	// query db for user info
-	row := db.QueryRow("SELECT * FROM users WHERE username=?", username)
+	row := conn.Db.QueryRow("SELECT * FROM users WHERE username=?", username)
 
 	// variable to store column from db
 	var skills string
 	var projects string
 
 	// copy column into var
-	err := row.Scan(&user.Username, &user.Email, &user.Password, &user.FirstName, &user.LastName, &user.Phone, &user.Github, &user.Medium, &user.Twitter, &user.LinkedIn, &user.Objective, &user.Tagline, &skills, &projects, &user.Theme)
+	err := row.Scan(&user.Username, &user.Password, &user.Email, &user.FirstName, &user.LastName, &user.Phone, &user.Github, &user.Medium, &user.Twitter, &user.LinkedIn, &user.Objective, &user.Tagline, &skills, &projects, &user.Theme)
 	if err != nil {
 		// check if no rows is returned and handle it
 		if err == sql.ErrNoRows {
@@ -70,7 +68,7 @@ func SetUserInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// prepare query statement
-	stmt, err := db.Prepare("UPDATE users SET first_name=?, last_name=?, email=?, phone=?, github=?, medium=?, twitter=?, linkedin=?, tagline=?, objective=?, skills=?, projects=?, theme=? WHERE username=?")
+	stmt, err := conn.Db.Prepare("UPDATE users SET first_name=?, last_name=?, email=?, phone=?, github=?, medium=?, twitter=?, linkedin=?, tagline=?, objective=?, skills=?, projects=?, theme=? WHERE username=?")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Printf("error occured when preparing statement:: %v", err)

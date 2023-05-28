@@ -1,6 +1,7 @@
 package userModels
 
 type UserInfo struct {
+	Id			 string 		`json:"_id"`
 	Username  string     `json:"username"`
 	Password  string     `json:"password"`
 	FirstName string     `json:"first_name"`

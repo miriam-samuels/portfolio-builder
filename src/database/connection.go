@@ -1,31 +1,38 @@
-package database
+package conn
 
 import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
-	"net/http"
+	"time"
 )
 
 const (
 	DRIVER_NAME     = "mysql"
-	DATASOURCE_NAME = "root:password@/portfolio"
+	DATASOURCE_NAME = "root:G22mEyct@/portfolio"
 )
 
-var PortfolioDb *sql.DB
+var Db *sql.DB
 var connectionError error
 
 func ConnectDB() {
-	PortfolioDb, connectionError = sql.Open(DRIVER_NAME, DATASOURCE_NAME)
+	Db, connectionError = sql.Open(DRIVER_NAME, DATASOURCE_NAME)
 	if connectionError != nil {
 		log.Fatal("error connecting to database :: ", connectionError)
 	}
+	CurrentDb()
+	fmt.Println("Connection to DB Successful")
+	Db.SetConnMaxLifetime(time.Minute * 3)
 }
 
-func GetDb(w http.ResponseWriter, r *http.Request) {
-	//perform select query to get db
-	rows, err := PortfolioDb.Query("SELECT DATABASE() AS db")
+func GetDb() *sql.DB {
+	return Db
+}
+
+func CurrentDb() {
+	// perform select query to get db
+	rows, err := Db.Query("SELECT DATABASE() AS db")
 	if err != nil {
 		log.Fatal("error executing db select query :: ", err)
 	}
@@ -35,5 +42,5 @@ func GetDb(w http.ResponseWriter, r *http.Request) {
 		rows.Scan(&rec)
 	}
 
-	fmt.Fprintf(w, "Current Database is :: %s", rec)
+	fmt.Printf("Current Database is :: %s", rec)
 }

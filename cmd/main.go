@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/miriam-samuels/src/database"
+	conn "github.com/miriam-samuels/src/database"
 	"github.com/miriam-samuels/src/routes/v1"
 )
 
@@ -15,7 +15,7 @@ const (
 )
 
 func init() {
-	database.ConnectDB()
+	conn.ConnectDB()
 }
 
 func main() {
@@ -27,7 +27,7 @@ func main() {
 
 	routes.RoutesV1(v1)
 
-	defer database.PortfolioDb.Close()
+	defer conn.Db.Close()
 
 	err := http.ListenAndServe(CONN_HOST+":"+CONN_PORT, router)
 	if err != nil {
