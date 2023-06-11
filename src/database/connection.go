@@ -23,7 +23,7 @@ func ConnectDB() {
 	if connectionError != nil {
 		log.Fatal("error connecting to database :: ", connectionError)
 	}
-	CurrentDb()
+	// CurrentDb()
 	fmt.Println("Connection to DB Successful")
 	Db.SetConnMaxLifetime(time.Minute * 3)
 }
