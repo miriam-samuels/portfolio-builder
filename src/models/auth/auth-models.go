@@ -1,15 +1,17 @@
 package authModels
 
 import (
+	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/miriam-samuels/src/validators"
 )
 
-const (
-	secreto = "D22mEyct"
-)
+// const (
+// 	secreto = "D22mEyct"
+// )
+var secreto = os.Getenv("EN_CODE")
 
 var secretKey = []byte(secreto)
 
@@ -39,7 +41,6 @@ func (c LoginCredentials) ValidateLogin() error {
 }
 
 func GenerateToken(userId string) (string, error) {
-
 
 	//  MODIFY TOKEN
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{

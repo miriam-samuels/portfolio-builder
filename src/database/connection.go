@@ -3,18 +3,20 @@ package conn
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"log"
+	"os"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 const (
-	DRIVER_NAME     = "mysql"
-	DATASOURCE_NAME = "root:G22mEyct@/portfolio"
+	DRIVER_NAME = "mysql"
 )
 
 var Db *sql.DB
 var connectionError error
+var DATASOURCE_NAME = os.Getenv("DB_PASS")
 
 func ConnectDB() {
 	Db, connectionError = sql.Open(DRIVER_NAME, DATASOURCE_NAME)
