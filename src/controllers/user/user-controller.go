@@ -21,7 +21,7 @@ func GetUserInfo(w http.ResponseWriter, r *http.Request) {
 	var user userModels.UserInfo
 
 	// query db for user info
-	row := conn.Db.QueryRow("SELECT * FROM users WHERE username=?", username)
+	row := conn.Db.QueryRow("SELECT * FROM users WHERE username=$1", username)
 
 	// variable to store column from db
 	var skills string
@@ -68,12 +68,14 @@ func SetUserInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// prepare query statement
-	stmt, err := conn.Db.Prepare("UPDATE users SET first_name=?, last_name=?, email=?, phone=?, github=?, medium=?, twitter=?, linkedin=?, tagline=?, objective=?, skills=?, projects=?, theme=? WHERE username=?")
+	stmt, err := conn.Db.Prepare("UPDATE users SET first_name=$1, last_name=$2, email=$3, phone=$4, github=$5, medium=$6, twitter=$7, linkedin=$8, tagline=$9, objective=$10, skills=$11, projects=$12, theme=$13 WHERE username=$14")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Printf("error occured when preparing statement:: %v", err)
 		return
 	}
+
+	defer stmt.Close()
 
 	// converts struct back to json to be able to store in db
 	skills, _ := json.Marshal(userInfo.Skills)

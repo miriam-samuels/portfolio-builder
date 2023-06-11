@@ -41,13 +41,15 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	// generate user Id
 	userId := config.GenerateId()
 	// prepare query statment
-	stmt, err := conn.Db.Prepare("INSERT INTO users SET id=?,username=?,password=?,email=?")
+	stmt, err := conn.Db.Prepare("INSERT INTO users (id, username, password, email) VALUES ($1, $2, $3, $4)")
 	if err != nil {
 		log.Printf("%v where it was affected", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "Could not insert into db")
 		return
 	}
+
+	defer stmt.Close()
 
 	// execute query statement
 	result, err := stmt.Exec(userId, cred.Username, encryptedPass, cred.Email)
@@ -94,7 +96,7 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// prepare query statment for row matching username
-	row := conn.Db.QueryRow("SELECT id,username,password FROM users WHERE username=?", cred.Username)
+	row := conn.Db.QueryRow("SELECT id,username,password FROM users WHERE username= $1", cred.Username)
 
 	// variable to store data from db
 	var storedCred userModels.UserInfo
