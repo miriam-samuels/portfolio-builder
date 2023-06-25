@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	CONN_HOST = "localhost"
-	CONN_PORT = "3030"
+	CONN_HOST = "https://portfolio-builder-qndq.onrender.com"
+	CONN_PORT = ""
 )
 
 func init() {
