@@ -29,7 +29,8 @@ func main() {
 
 	defer conn.Db.Close()
 
-	err := http.ListenAndServe(CONN_HOST+":"+CONN_PORT, router)
+	// err := http.ListenAndServe(CONN_HOST+":"+CONN_PORT, router)
+	err := http.ListenAndServe(CONN_HOST, router)
 	if err != nil {
 		log.Fatal(err)
 	}
