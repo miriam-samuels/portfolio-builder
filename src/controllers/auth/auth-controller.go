@@ -43,7 +43,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	// prepare query statment
 	stmt, err := conn.Db.Prepare("INSERT INTO users (id, username, password, email) VALUES ($1, $2, $3, $4)")
 	if err != nil {
-		log.Printf("%v where it was affected", err)
+		log.Printf("%v Could not insert into db", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "Could not insert into db")
 		return
