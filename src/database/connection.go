@@ -26,8 +26,6 @@ func ConnectDB() {
 	// CurrentDb()
 	fmt.Println("Connection to DB Successful")
 	Db.SetConnMaxLifetime(time.Minute * 3)
-
-	createTable()
 }
 
 func createTable() {
