@@ -32,7 +32,7 @@ func ConnectDB() {
 
 func createTable() {
 	var exists bool
-	err := Db.QueryRow("SELECT * FROM").Scan(&exists)
+	err := Db.QueryRow("SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = $1)", "users").Scan(&exists)
 	if err != nil {
 		_, err := Db.Exec(`
 		CREATE TABLE users(
