@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	conn "github.com/miriam-samuels/src/database"
@@ -19,6 +20,11 @@ func init() {
 }
 
 func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "3000"
+	}
+
 	router := mux.NewRouter().StrictSlash(true)
 	v1 := router.PathPrefix("/").Subrouter()
 	// v2 := router.PathPrefix("/v2").Subrouter()
@@ -29,7 +35,7 @@ func main() {
 
 	defer conn.Db.Close()
 
-	err := http.ListenAndServe(CONN_HOST+":"+CONN_PORT, router)
+	err := http.ListenAndServe(":"+port, router)
 	if err != nil {
 		log.Fatal(err)
 	}
