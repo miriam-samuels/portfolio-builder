@@ -24,11 +24,11 @@ func GetUserInfo(w http.ResponseWriter, r *http.Request) {
 	row := conn.Db.QueryRow("SELECT * FROM users WHERE username=$1", username)
 
 	// variable to store column from db
-	var skills string
-	var projects string
+	// var skills nil
+	// var projects json
 
 	// copy column into var
-	err := row.Scan(&user.Username, &user.Password, &user.Email, &user.FirstName, &user.LastName, &user.Phone, &user.Github, &user.Medium, &user.Twitter, &user.LinkedIn, &user.Objective, &user.Tagline, &skills, &projects, &user.Theme)
+	err := row.Scan(&user.Id, &user.Username, &user.Password, &user.Email, &user.FirstName, &user.LastName, &user.Phone, &user.Github, &user.Medium, &user.Twitter, &user.LinkedIn, &user.Objective, &user.Tagline, &user.Theme, &user.Skills, &user.Projects)
 	if err != nil {
 		// check if no rows is returned and handle it
 		if err == sql.ErrNoRows {
@@ -37,14 +37,15 @@ func GetUserInfo(w http.ResponseWriter, r *http.Request) {
 			log.Printf("%v", err)
 			return
 		}
+		// check for other possible errors
 		log.Printf("%v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	// what is coming from the db is json so it unmarshals it types golang understands
-	json.Unmarshal([]byte(skills), &user.Skills)
-	json.Unmarshal([]byte(projects), &user.Projects)
+	// json.Unmarshal([]byte(skills), &user.Skills)
+	// json.Unmarshal([]byte(projects), &user.Projects)
 
 	// marshall data to be sent back
 	json.NewEncoder(w).Encode(user)
@@ -82,7 +83,7 @@ func SetUserInfo(w http.ResponseWriter, r *http.Request) {
 	projects, _ := json.Marshal(userInfo.Projects)
 
 	// execute the statement
-	res, err := stmt.Exec(userInfo.FirstName, userInfo.LastName, userInfo.Email, userInfo.Phone, userInfo.Github, userInfo.Medium, userInfo.Twitter, userInfo.LinkedIn, userInfo.Tagline, userInfo.Objective, skills, projects, userInfo.Theme, username)
+	res, err := stmt.Exec(username, userInfo.FirstName, userInfo.LastName, userInfo.Email, userInfo.Phone, userInfo.Github, userInfo.Medium, userInfo.Twitter, userInfo.LinkedIn, userInfo.Tagline, userInfo.Objective, userInfo.Theme, skills, projects)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Printf("error occured when executing statement:: %v", err)

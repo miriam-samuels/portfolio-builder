@@ -16,6 +16,7 @@ import (
 )
 
 func SignUp(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("hello")
 	var cred authModels.SignUpCredentials
 	var responseData authModels.Response
 
@@ -29,6 +30,8 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "%v", err)
 		return
 	}
+	fmt.Println("hello")
+
 
 	// encrypt password
 	encryptedPass, err := utils.Encrypt(cred.Password)
@@ -60,7 +63,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userToken, err := authModels.GenerateToken(userId)
+	userToken, err := config.GenerateToken(userId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "Failed to register user")
@@ -75,6 +78,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		},
 		Message: "Signup successful"}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(responseData)
 	log.Printf("%v", result)
@@ -124,7 +128,7 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// generate token
-	userToken, err := authModels.GenerateToken(storedCred.Id)
+	userToken, err := config.GenerateToken(storedCred.Id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "Failed to register user")
@@ -139,6 +143,7 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 		},
 		Message: "Login successful"}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(responseData)
 }

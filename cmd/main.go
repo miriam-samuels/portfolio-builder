@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	CONN_HOST = "https://portfolio-builder-qndq.onrender.com"
-	CONN_PORT = "80"
+	CONN_HOST = "localhost"
+	CONN_PORT = "3000"
 )
 
 func init() {
@@ -22,7 +22,7 @@ func init() {
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "3000"
+		port = CONN_PORT
 	}
 
 	router := mux.NewRouter().StrictSlash(true)
@@ -35,7 +35,7 @@ func main() {
 
 	defer conn.Db.Close()
 
-	err := http.ListenAndServe(":"+port, router)
+	err := http.ListenAndServe(CONN_HOST+":"+port, router)
 	if err != nil {
 		log.Fatal(err)
 	}

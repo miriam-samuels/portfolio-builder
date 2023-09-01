@@ -1,5 +1,3 @@
-# create the database
-
 CREATE TABLE users(
    id VARCHAR(40) PRIMARY KEY,
    username VARCHAR(30) NOT NULL ,
@@ -14,8 +12,7 @@ CREATE TABLE users(
    linkedin VARCHAR(45) DEFAULT '',
    objective VARCHAR(400) DEFAULT '',
    tagline VARCHAR(150) DEFAULT '',
-   theme VARCHAR(30) DEFAULT '',
    skills JSON,
-   projects JSON
+   projects JSON,
+   theme VARCHAR(30) DEFAULT ''
 );
-
