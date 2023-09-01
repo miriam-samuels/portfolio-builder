@@ -1,7 +1,9 @@
 package userModels
 
+import "github.com/google/uuid"
+
 type UserInfo struct {
-	Id			 string 		`json:"_id"`
+	Id        uuid.UUID  `json:"_id"`
 	Username  string     `json:"username"`
 	Password  string     `json:"password"`
 	FirstName string     `json:"first_name"`
@@ -15,11 +17,11 @@ type UserInfo struct {
 	Tagline   string     `json:"tagline"`
 	Objective string     `json:"objective"`
 	Theme     string     `json:"theme"`
-	Skills    Skils      `json:"skills"`
+	Skills    UserSkills     `json:"skills"`
 	Projects  []Projects `json:"projects"`
 }
 
-type Skils struct {
+type UserSkills struct {
 	Hard     []string `json:"hard"`
 	Soft     []string `json:"soft"`
 	Interest []string `json:"interest"`

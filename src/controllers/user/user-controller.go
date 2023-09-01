@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	conn "github.com/miriam-samuels/src/database"
 	userModels "github.com/miriam-samuels/src/models/user"
+	authModels "github.com/miriam-samuels/src/models/auth"
 )
 
 func GetUserInfo(w http.ResponseWriter, r *http.Request) {
@@ -28,7 +29,7 @@ func GetUserInfo(w http.ResponseWriter, r *http.Request) {
 	var projects string
 
 	// copy column into var
-	err := row.Scan(&user.Username, &user.Password, &user.Email, &user.FirstName, &user.LastName, &user.Phone, &user.Github, &user.Medium, &user.Twitter, &user.LinkedIn, &user.Objective, &user.Tagline, &skills, &projects, &user.Theme)
+	err := row.Scan(&user.Id, &user.Username, &user.Password, &user.Email, &user.FirstName, &user.LastName, &user.Phone, &user.Github, &user.Medium, &user.Twitter, &user.LinkedIn, &user.Objective, &user.Tagline, &user.Theme, &skills, &projects)
 	if err != nil {
 		// check if no rows is returned and handle it
 		if err == sql.ErrNoRows {
@@ -37,6 +38,7 @@ func GetUserInfo(w http.ResponseWriter, r *http.Request) {
 			log.Printf("%v", err)
 			return
 		}
+		// check for other possible errors
 		log.Printf("%v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -46,12 +48,15 @@ func GetUserInfo(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal([]byte(skills), &user.Skills)
 	json.Unmarshal([]byte(projects), &user.Projects)
 
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	// marshall data to be sent back
 	json.NewEncoder(w).Encode(user)
-	w.WriteHeader(http.StatusOK)
 }
 
 func SetUserInfo(w http.ResponseWriter, r *http.Request) {
+	var responseData authModels.Response
+
 	// get variable in request url
 	vars := mux.Vars(r)
 	username := vars["user"]
@@ -68,7 +73,7 @@ func SetUserInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// prepare query statement
-	stmt, err := conn.Db.Prepare("UPDATE users SET first_name=$1, last_name=$2, email=$3, phone=$4, github=$5, medium=$6, twitter=$7, linkedin=$8, tagline=$9, objective=$10, skills=$11, projects=$12, theme=$13 WHERE username=$14")
+	stmt, err := conn.Db.Prepare("UPDATE users SET first_name=$1, last_name=$2, email=$3, phone=$4, github=$5, medium=$6, twitter=$7, linkedin=$8, tagline=$9, objective=$10, theme=$11, skills=$12, projects=$13 WHERE username=$14")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Printf("error occured when preparing statement:: %v", err)
@@ -82,7 +87,7 @@ func SetUserInfo(w http.ResponseWriter, r *http.Request) {
 	projects, _ := json.Marshal(userInfo.Projects)
 
 	// execute the statement
-	res, err := stmt.Exec(userInfo.FirstName, userInfo.LastName, userInfo.Email, userInfo.Phone, userInfo.Github, userInfo.Medium, userInfo.Twitter, userInfo.LinkedIn, userInfo.Tagline, userInfo.Objective, skills, projects, userInfo.Theme, username)
+	res, err := stmt.Exec(userInfo.FirstName, userInfo.LastName, userInfo.Email, userInfo.Phone, userInfo.Github, userInfo.Medium, userInfo.Twitter, userInfo.LinkedIn, userInfo.Tagline, userInfo.Objective, userInfo.Theme, string(skills), string(projects), username)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Printf("error occured when executing statement:: %v", err)
@@ -91,5 +96,24 @@ func SetUserInfo(w http.ResponseWriter, r *http.Request) {
 
 	// get the rows affected
 	rows, _ := res.RowsAffected()
-	fmt.Fprintf(w, "record successfully set :: %d rows affected", rows)
+	fmt.Printf("record successfully set :: %d rows affected", rows)
+	w.Header().Set("Content-Type", "application/json")
+	if rows < 1 {
+		w.WriteHeader(http.StatusBadRequest)
+		responseData = authModels.Response{
+			Status:  false,
+			Data:    map[string]interface{}{},
+			Message: "User does not exist",
+		}
+	} else {
+		w.WriteHeader(http.StatusOK)
+		responseData = authModels.Response{
+			Status:  true,
+			Data:    map[string]interface{}{},
+			Message: "user updated successfully",
+		}
+	}
+	
+	json.NewEncoder(w).Encode(responseData)
+
 }
