@@ -24,11 +24,11 @@ func GetUserInfo(w http.ResponseWriter, r *http.Request) {
 	row := conn.Db.QueryRow("SELECT * FROM users WHERE username=$1", username)
 
 	// variable to store column from db
-	// var skills nil
-	// var projects json
+	var skills string
+	var projects string
 
 	// copy column into var
-	err := row.Scan(&user.Id, &user.Username, &user.Password, &user.Email, &user.FirstName, &user.LastName, &user.Phone, &user.Github, &user.Medium, &user.Twitter, &user.LinkedIn, &user.Objective, &user.Tagline, &user.Theme, &user.Skills, &user.Projects)
+	err := row.Scan(&user.Id, &user.Username, &user.Password, &user.Email, &user.FirstName, &user.LastName, &user.Phone, &user.Github, &user.Medium, &user.Twitter, &user.LinkedIn, &user.Objective, &user.Tagline, &user.Theme, &skills, &projects)
 	if err != nil {
 		// check if no rows is returned and handle it
 		if err == sql.ErrNoRows {
@@ -47,9 +47,10 @@ func GetUserInfo(w http.ResponseWriter, r *http.Request) {
 	// json.Unmarshal([]byte(skills), &user.Skills)
 	// json.Unmarshal([]byte(projects), &user.Projects)
 
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	// marshall data to be sent back
 	json.NewEncoder(w).Encode(user)
-	w.WriteHeader(http.StatusOK)
 }
 
 func SetUserInfo(w http.ResponseWriter, r *http.Request) {

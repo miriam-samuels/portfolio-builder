@@ -16,7 +16,6 @@ import (
 )
 
 func SignUp(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("hello")
 	var cred authModels.SignUpCredentials
 	var responseData authModels.Response
 
@@ -30,8 +29,6 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "%v", err)
 		return
 	}
-	fmt.Println("hello")
-
 
 	// encrypt password
 	encryptedPass, err := utils.Encrypt(cred.Password)
