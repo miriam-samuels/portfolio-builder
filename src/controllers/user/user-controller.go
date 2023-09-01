@@ -44,8 +44,8 @@ func GetUserInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// what is coming from the db is json so it unmarshals it types golang understands
-	// json.Unmarshal([]byte(skills), &user.Skills)
-	// json.Unmarshal([]byte(projects), &user.Projects)
+	json.Unmarshal([]byte(skills), &user.Skills)
+	json.Unmarshal([]byte(projects), &user.Projects)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -82,6 +82,7 @@ func SetUserInfo(w http.ResponseWriter, r *http.Request) {
 	// converts struct back to json to be able to store in db
 	skills, _ := json.Marshal(userInfo.Skills)
 	projects, _ := json.Marshal(userInfo.Projects)
+	// fmt.Printf("obj %v %v ", skills,projects)
 
 	// execute the statement
 	res, err := stmt.Exec(username, userInfo.FirstName, userInfo.LastName, userInfo.Email, userInfo.Phone, userInfo.Github, userInfo.Medium, userInfo.Twitter, userInfo.LinkedIn, userInfo.Tagline, userInfo.Objective, userInfo.Theme, skills, projects)

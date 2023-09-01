@@ -15,7 +15,11 @@ CREATE TABLE users(
    objective VARCHAR(400) DEFAULT '',
    tagline VARCHAR(150) DEFAULT '',
    theme VARCHAR(30) DEFAULT '',
-   skills JSON DEFAULT '{}',
+   skills JSON DEFAULT '{
+        "hard": [],
+        "soft": [],
+        "interest": []
+    }',
    projects JSON DEFAULT '[]'
 );
 
