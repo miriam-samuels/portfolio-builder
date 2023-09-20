@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	DRIVER_NAME     = "postgres"
+	DRIVER_NAME = "postgres"
 )
 
 var Db *sql.DB
@@ -32,4 +32,3 @@ func ConnectDB() {
 func GetDb() *sql.DB {
 	return Db
 }
-

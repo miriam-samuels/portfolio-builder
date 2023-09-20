@@ -12,7 +12,7 @@ import (
 
 const (
 	CONN_HOST = "portfolio-builder-qndq.onrender.com"
-	CONN_PORT = "443"
+	CONN_PORT = "5432"
 )
 
 func init() {
