@@ -12,6 +12,8 @@ import (
 
 const (
 	DRIVER_NAME = "postgres"
+	// DATASOURCE_NAME = "postgres://root:7hPXtNDOLj5LMhGbdJlvIrMjmE7V14na@dpg-ck5nrl8s0i2c73bai7s0-a.oregon-postgres.render.com/portfolio_2p6g?sslmode=disable"
+
 )
 
 var Db *sql.DB

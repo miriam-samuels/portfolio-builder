@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	CONN_HOST = "portfolio-builder-qndq.onrender.com"
-	CONN_PORT = "5432"
+	CONN_HOST = "localhost"
+	CONN_PORT = "8080"
 )
 
 func init() {
@@ -35,7 +35,7 @@ func main() {
 
 	defer conn.Db.Close()
 
-	err := http.ListenAndServe(CONN_HOST, router)
+	err := http.ListenAndServe(CONN_HOST + ":" + port, router)
 	if err != nil {
 		log.Fatal(err)
 	}
