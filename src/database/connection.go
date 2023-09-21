@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
+	// "os"
 	"time"
 
 	_ "github.com/lib/pq"
@@ -12,14 +12,14 @@ import (
 
 const (
 	DRIVER_NAME = "postgres"
-	// DATASOURCE_NAME = "postgres://root:7hPXtNDOLj5LMhGbdJlvIrMjmE7V14na@dpg-ck5nrl8s0i2c73bai7s0-a.oregon-postgres.render.com/portfolio_2p6g?sslmode=disable"
+	DATASOURCE_NAME = "postgres://root:7hPXtNDOLj5LMhGbdJlvIrMjmE7V14na@dpg-ck5nrl8s0i2c73bai7s0-a.oregon-postgres.render.com/portfolio_2p6g?sslmode=disable"
 
 )
 
 var Db *sql.DB
 var connectionError error
 
-var DATASOURCE_NAME = os.Getenv("DB_PASS")
+// var DATASOURCE_NAME = os.Getenv("DB_PASS")
 
 func ConnectDB() {
 	Db, connectionError = sql.Open(DRIVER_NAME, DATASOURCE_NAME)
