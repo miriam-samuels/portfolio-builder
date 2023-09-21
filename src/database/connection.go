@@ -12,7 +12,7 @@ import (
 
 const (
 	DRIVER_NAME     = "postgres"
-	DATASOURCE_NAME = "postgres://postgres:G22mEyct@localhost:5432/portfoliodb?sslmode=require"
+	DATASOURCE_NAME = "postgres://postgres:G22mEyct@localhost:5432/portfoliodb?sslmode=disable"
 )
 
 var Db *sql.DB
