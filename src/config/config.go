@@ -34,3 +34,5 @@ func GenerateToken(userId uuid.UUID) (string, error) {
 
 	return token, nil
 }
+
+func VerifyToken()

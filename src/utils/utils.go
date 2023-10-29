@@ -15,7 +15,4 @@ func Encrypt(password string) (string, error) {
 	return string(hashedPassword), nil
 }
 
-
-func GenerateId() {
-
-}
+ 
