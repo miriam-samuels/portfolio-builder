@@ -1,8 +1,6 @@
-package authModels
+package auth
 
-import (
-	"github.com/miriam-samuels/src/validators"
-)
+import "github.com/miriam-samuels/portfolio-builder/internal/validator"
 
 type SignUpCredentials struct {
 	Username string `json:"username" validate:"required=true;max=15"`
@@ -22,9 +20,9 @@ type Response struct {
 }
 
 func (c SignUpCredentials) ValidateSignUp() error {
-	return validators.Validate(c)
+	return validator.Validate(c)
 }
 
 func (c LoginCredentials) ValidateLogin() error {
-	return validators.Validate(c)
+	return validator.Validate(c)
 }

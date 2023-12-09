@@ -1,4 +1,4 @@
-package authControllers
+package auth
 
 import (
 	"database/sql"
@@ -7,17 +7,15 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/miriam-samuels/src/config"
-	conn "github.com/miriam-samuels/src/database"
-	authModels "github.com/miriam-samuels/src/models/auth"
-	userModels "github.com/miriam-samuels/src/models/user"
-	"github.com/miriam-samuels/src/utils"
+	"github.com/miriam-samuels/portfolio-builder/internal/db"
+	"github.com/miriam-samuels/portfolio-builder/internal/helper"
+	"github.com/miriam-samuels/portfolio-builder/internal/models/auth"
+	"github.com/miriam-samuels/portfolio-builder/internal/models/user"
 	"golang.org/x/crypto/bcrypt"
 )
 
 func SignUp(w http.ResponseWriter, r *http.Request) {
-	var cred authModels.SignUpCredentials
-	var responseData authModels.Response
+	var cred auth.SignUpCredentials
 
 	// decode request body and store in cred variable
 	_ = json.NewDecoder(r.Body).Decode(&cred)
@@ -31,7 +29,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// encrypt password
-	encryptedPass, err := utils.Encrypt(cred.Password)
+	encryptedPass, err := helper.Encrypt(cred.Password)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Fatal(err)
@@ -39,9 +37,9 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// generate user Id
-	userId := config.GenerateId()
+	userId := helper.GenerateUUID().String()
 	// prepare query statment
-	stmt, err := conn.Db.Prepare("INSERT INTO users (id, username, password, email) VALUES ($1, $2, $3, $4)")
+	stmt, err := db.Portfolio.Prepare("INSERT INTO users (id, username, password, email) VALUES ($1, $2, $3, $4)")
 	if err != nil {
 		log.Printf("%v Could not insert into db", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -52,7 +50,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	defer stmt.Close()
 
 	// execute query statement
-	result, err := stmt.Exec(userId, cred.Username, encryptedPass, cred.Email)
+	_, err = stmt.Exec(userId, cred.Username, encryptedPass, cred.Email)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "Username or email already exist")
@@ -60,7 +58,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userToken, err := config.GenerateToken(userId)
+	userToken, err := helper.SignJWT(userId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "Failed to register user")
@@ -68,22 +66,14 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responseData = authModels.Response{
-		Status: true,
-		Data: map[string]interface{}{
-			"token": userToken,
-		},
-		Message: "Signup successful"}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(responseData)
-	log.Printf("%v", result)
+	res := map[string]interface{}{
+		"token": userToken,
+	}
+	helper.SendResponse(w, http.StatusOK, true, "Signup successful", res)
 }
 
 func SignIn(w http.ResponseWriter, r *http.Request) {
-	var cred authModels.LoginCredentials
-	var responseData authModels.Response
+	var cred auth.LoginCredentials
 
 	// decode request body and store in cred variable
 	_ = json.NewDecoder(r.Body).Decode(&cred)
@@ -97,10 +87,10 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// prepare query statment for row matching username
-	row := conn.Db.QueryRow("SELECT id,username,password FROM users WHERE username= $1", cred.Username)
+	row := db.Portfolio.QueryRow("SELECT id,username,password FROM users WHERE username= $1", cred.Username)
 
 	// variable to store data from db
-	var storedCred userModels.UserInfo
+	var storedCred user.UserInfo
 
 	// copy columnn from matched row into variable pointed at
 	err = row.Scan(&storedCred.Id, &storedCred.Username, &storedCred.Password)
@@ -125,7 +115,7 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// generate token
-	userToken, err := config.GenerateToken(storedCred.Id)
+	userToken, err := helper.SignJWT(storedCred.Id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, "Failed to register user")
@@ -133,14 +123,8 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responseData = authModels.Response{
-		Status: true,
-		Data: map[string]interface{}{
-			"token": userToken,
-		},
-		Message: "Login successful"}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(responseData)
+	res := map[string]interface{}{
+		"token": userToken,
+	}
+	helper.SendResponse(w, http.StatusOK, true, "Signup successful", res)
 }

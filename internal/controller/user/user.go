@@ -1,4 +1,4 @@
-package userController
+package user
 
 import (
 	"database/sql"
@@ -8,9 +8,9 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	conn "github.com/miriam-samuels/src/database"
-	userModels "github.com/miriam-samuels/src/models/user"
-	authModels "github.com/miriam-samuels/src/models/auth"
+	"github.com/miriam-samuels/portfolio-builder/internal/db"
+	"github.com/miriam-samuels/portfolio-builder/internal/helper"
+	"github.com/miriam-samuels/portfolio-builder/internal/models/user"
 )
 
 func GetUserInfo(w http.ResponseWriter, r *http.Request) {
@@ -19,10 +19,10 @@ func GetUserInfo(w http.ResponseWriter, r *http.Request) {
 	username := vars["user"]
 
 	// create var to store data
-	var user userModels.UserInfo
+	var user user.UserInfo
 
 	// query db for user info
-	row := conn.Db.QueryRow("SELECT * FROM users WHERE username=$1", username)
+	row := db.Portfolio.QueryRow("SELECT * FROM users WHERE username=$1", username)
 
 	// variable to store column from db
 	var skills string
@@ -55,14 +55,12 @@ func GetUserInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func SetUserInfo(w http.ResponseWriter, r *http.Request) {
-	var responseData authModels.Response
-
 	// get variable in request url
 	vars := mux.Vars(r)
 	username := vars["user"]
 
 	// get request body
-	var userInfo userModels.UserInfo
+	var userInfo user.UserInfo
 
 	// convert request body to types that golang understands
 	err := json.NewDecoder(r.Body).Decode(&userInfo)
@@ -73,7 +71,7 @@ func SetUserInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// prepare query statement
-	stmt, err := conn.Db.Prepare("UPDATE users SET first_name=$1, last_name=$2, email=$3, phone=$4, github=$5, medium=$6, twitter=$7, linkedin=$8, tagline=$9, objective=$10, theme=$11, skills=$12, projects=$13 WHERE username=$14")
+	stmt, err := db.Portfolio.Prepare("UPDATE users SET first_name=$1, last_name=$2, email=$3, phone=$4, github=$5, medium=$6, twitter=$7, linkedin=$8, tagline=$9, objective=$10, theme=$11, skills=$12, projects=$13 WHERE username=$14")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Printf("error occured when preparing statement:: %v", err)
@@ -99,21 +97,9 @@ func SetUserInfo(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("record successfully set :: %d rows affected", rows)
 	w.Header().Set("Content-Type", "application/json")
 	if rows < 1 {
-		w.WriteHeader(http.StatusBadRequest)
-		responseData = authModels.Response{
-			Status:  false,
-			Data:    map[string]interface{}{},
-			Message: "User does not exist",
-		}
+		helper.SendResponse(w, http.StatusBadRequest, false, "user does not exist", nil)
 	} else {
-		w.WriteHeader(http.StatusOK)
-		responseData = authModels.Response{
-			Status:  true,
-			Data:    map[string]interface{}{},
-			Message: "user updated successfully",
-		}
-	}
-	
-	json.NewEncoder(w).Encode(responseData)
+		helper.SendResponse(w, http.StatusOK, true, "user updated successfully", nil)
 
+	}
 }
