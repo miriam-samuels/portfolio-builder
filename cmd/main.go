@@ -10,12 +10,11 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/miriam-samuels/portfolio-builder/internal/db"
-	"github.com/miriam-samuels/portfolio-builder/internal/routes/v1"
+	v1 "github.com/miriam-samuels/portfolio-builder/internal/version"
 	"github.com/rs/cors"
 )
 
 const (
-	CONN_HOST = "localhost"
 	CONN_PORT = "3000"
 )
 
@@ -43,12 +42,7 @@ func main() {
 	}
 
 	router := mux.NewRouter().StrictSlash(true)
-	v1 := router.PathPrefix("/").Subrouter()
-	// v2 := router.PathPrefix("/v2").Subrouter()
-
-	// http.Handle("/", router)
-
-	routes.RoutesV1(v1)
+	v1.Routes(router)
 
 	defer db.Portfolio.Close()
 

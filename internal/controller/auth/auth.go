@@ -2,7 +2,6 @@ package auth
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,17 +10,20 @@ import (
 	"github.com/miriam-samuels/portfolio-builder/internal/helper"
 	"github.com/miriam-samuels/portfolio-builder/internal/models/auth"
 	"github.com/miriam-samuels/portfolio-builder/internal/models/user"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func SignUp(w http.ResponseWriter, r *http.Request) {
-	var cred auth.SignUpCredentials
+	fmt.Println("yay entered")
+	cred := &auth.SignUpCredentials{}
 
 	// decode request body and store in cred variable
-	_ = json.NewDecoder(r.Body).Decode(&cred)
-
+	err := helper.ParseRequestBody(w, r, cred)
+	if err != nil {
+		helper.SendResponse(w, http.StatusBadRequest, false, "error parsing body:"+err.Error(), nil, err)
+		return
+	}
 	// validate body to ensure all properties are available
-	err := cred.ValidateSignUp()
+	err = cred.ValidateSignUp()
 	if err != nil {
 		helper.SendResponse(w, http.StatusBadRequest, false, err.Error(), nil)
 		return
@@ -54,7 +56,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 
 	userToken, err := helper.SignJWT(userId)
 	if err != nil {
-		helper.SendResponse(w, http.StatusInternalServerError, false, "Failed to register user", nil,err)
+		helper.SendResponse(w, http.StatusInternalServerError, false, "Failed to register user", nil, err)
 		return
 	}
 
@@ -65,13 +67,17 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 }
 
 func SignIn(w http.ResponseWriter, r *http.Request) {
-	var cred auth.LoginCredentials
+	cred := &auth.LoginCredentials{}
 
 	// decode request body and store in cred variable
-	_ = json.NewDecoder(r.Body).Decode(&cred)
+	err := helper.ParseRequestBody(w, r, cred)
+	if err != nil {
+		helper.SendResponse(w, http.StatusBadRequest, false, "error parsing body:"+err.Error(), nil, err)
+		return
+	}
 
 	// validate body to ensure all properties are available
-	err := cred.ValidateLogin()
+	err = cred.ValidateLogin()
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "%v", err)
@@ -99,7 +105,7 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// compare entered password with password in db
-	err = bcrypt.CompareHashAndPassword([]byte(storedCred.Password), []byte(cred.Password))
+	err = helper.CompareHashAndString(storedCred.Password, cred.Password)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		log.Printf("%v", err)
@@ -118,5 +124,5 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	res := map[string]interface{}{
 		"token": userToken,
 	}
-	helper.SendResponse(w, http.StatusOK, true, "Signup successful", res)
+	helper.SendResponse(w, http.StatusOK, true, "Signin successful", res)
 }

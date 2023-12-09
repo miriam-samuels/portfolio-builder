@@ -6,7 +6,7 @@ import (
 	"github.com/miriam-samuels/portfolio-builder/internal/controller/user"
 )
 
-func RoutesV1(r *mux.Router) {
+func Routes(r *mux.Router) {
 
 	// Authentication Routes
 	r.HandleFunc("/signup", auth.SignUp).Methods("POST")
