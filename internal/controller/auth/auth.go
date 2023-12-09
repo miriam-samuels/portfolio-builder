@@ -29,6 +29,19 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var exists bool
+	err = db.Portfolio.QueryRow("SELECT 1 FROM users WHERE email=$1", cred.Email).Scan(&exists)
+	if err != nil && err != sql.ErrNoRows {
+		helper.SendResponse(w, http.StatusInternalServerError, false, "error encoutered", nil, err)
+		return
+	}
+
+	// send response that user exists
+	if exists {
+		helper.SendResponse(w, http.StatusBadRequest, false, "user exists", nil)
+		return
+	}
+
 	// encrypt password
 	encryptedPass, err := helper.Encrypt(cred.Password)
 	if err != nil {
@@ -123,6 +136,7 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 
 	res := map[string]interface{}{
 		"token": userToken,
+		"user":  storedCred,
 	}
 	helper.SendResponse(w, http.StatusOK, true, "Signin successful", res)
 }

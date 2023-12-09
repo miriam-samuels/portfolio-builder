@@ -60,21 +60,19 @@ func SetUserInfo(w http.ResponseWriter, r *http.Request) {
 	username := vars["user"]
 
 	// get request body
-	var userInfo user.UserInfo
+	userInfo := &user.UserInfo{}
 
 	// convert request body to types that golang understands
-	err := json.NewDecoder(r.Body).Decode(&userInfo)
+	err := helper.ParseRequestBody(w, r, userInfo)
 	if err != nil {
-		fmt.Fprintf(w, "Failed to parse body : %v", err)
-		w.WriteHeader(http.StatusBadRequest)
+		helper.SendResponse(w, http.StatusBadRequest, false, "error parsing body:"+err.Error(), nil, err)
 		return
 	}
 
 	// prepare query statement
 	stmt, err := db.Portfolio.Prepare("UPDATE users SET first_name=$1, last_name=$2, email=$3, phone=$4, github=$5, medium=$6, twitter=$7, linkedin=$8, tagline=$9, objective=$10, theme=$11, skills=$12, projects=$13 WHERE username=$14")
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Printf("error occured when preparing statement:: %v", err)
+		helper.SendResponse(w, http.StatusInternalServerError, false, "error encoutered", nil, err)
 		return
 	}
 
@@ -87,15 +85,13 @@ func SetUserInfo(w http.ResponseWriter, r *http.Request) {
 	// execute the statement
 	res, err := stmt.Exec(userInfo.FirstName, userInfo.LastName, userInfo.Email, userInfo.Phone, userInfo.Github, userInfo.Medium, userInfo.Twitter, userInfo.LinkedIn, userInfo.Tagline, userInfo.Objective, userInfo.Theme, string(skills), string(projects), username)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Printf("error occured when executing statement:: %v", err)
+		helper.SendResponse(w, http.StatusInternalServerError, false, "error encoutered", nil, err)
 		return
 	}
 
 	// get the rows affected
 	rows, _ := res.RowsAffected()
-	fmt.Printf("record successfully set :: %d rows affected", rows)
-	w.Header().Set("Content-Type", "application/json")
+
 	if rows < 1 {
 		helper.SendResponse(w, http.StatusBadRequest, false, "user does not exist", nil)
 	} else {
