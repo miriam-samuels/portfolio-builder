@@ -23,16 +23,14 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	// validate body to ensure all properties are available
 	err := cred.ValidateSignUp()
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "%v", err)
+		helper.SendResponse(w, http.StatusBadRequest, false, err.Error(), nil)
 		return
 	}
 
 	// encrypt password
 	encryptedPass, err := helper.Encrypt(cred.Password)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Fatal(err)
+		helper.SendResponse(w, http.StatusInternalServerError, false, err.Error(), nil)
 		return
 	}
 
@@ -41,9 +39,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	// prepare query statment
 	stmt, err := db.Portfolio.Prepare("INSERT INTO users (id, username, password, email) VALUES ($1, $2, $3, $4)")
 	if err != nil {
-		log.Printf("%v Could not insert into db", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Could not insert into db")
+		helper.SendResponse(w, http.StatusInternalServerError, false, err.Error(), nil)
 		return
 	}
 
@@ -52,17 +48,13 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	// execute query statement
 	_, err = stmt.Exec(userId, cred.Username, encryptedPass, cred.Email)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "Username or email already exist")
-		log.Printf("%v", err)
+		helper.SendResponse(w, http.StatusBadRequest, false, "Username or email already exist", nil)
 		return
 	}
 
 	userToken, err := helper.SignJWT(userId)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Failed to register user")
-		log.Printf("%v", err)
+		helper.SendResponse(w, http.StatusInternalServerError, false, "Failed to register user", nil,err)
 		return
 	}
 
