@@ -30,3 +30,8 @@ type Projects struct {
 	Preview     string `json:"preview"`
 	Description string `json:"description"`
 }
+
+type UserRoute struct{
+	Username  string     `json:"username"`
+	Theme     string     `json:"theme"`
+}

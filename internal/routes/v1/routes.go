@@ -14,6 +14,7 @@ func Routes(r *mux.Router) {
 	r.HandleFunc("/signin", auth.SignIn).Methods("POST")
 
 	// User Routes
+	r.HandleFunc("/user/routes", user.GetUserRoutes).Methods("GET")
 	r.HandleFunc("/userinfo/{user}", user.GetUserInfo).Methods("GET")
 	r.HandleFunc("/userinfo/{user}", user.SetUserInfo).Methods("PUT")
 

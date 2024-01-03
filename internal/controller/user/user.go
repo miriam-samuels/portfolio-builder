@@ -13,6 +13,24 @@ import (
 	"github.com/miriam-samuels/portfolio-builder/internal/models/user"
 )
 
+func GetUserRoutes(w http.ResponseWriter, r *http.Request) {
+	var routes []user.UserRoute
+
+	rows, err := db.Portfolio.Query("SELECT username,theme FROM users")
+	if err != nil {
+		helper.SendResponse(w, http.StatusInternalServerError, false, "Internal Server Error", nil)
+		return
+	}
+
+	for rows.Next() {
+		var route user.UserRoute
+		rows.Scan(&route.Username, &route.Theme)
+		routes = append(routes, route)
+	}
+
+	helper.SendResponse(w, http.StatusOK, true, "Request Successful", routes)
+}
+
 func GetUserInfo(w http.ResponseWriter, r *http.Request) {
 	// get variable in request url
 	vars := mux.Vars(r)
