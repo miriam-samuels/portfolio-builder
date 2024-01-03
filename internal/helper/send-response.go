@@ -8,7 +8,7 @@ import (
 	"github.com/miriam-samuels/portfolio-builder/internal/types"
 )
 
-func SendResponse(w http.ResponseWriter, statusCode int, status bool, message string, data map[string]interface{}, err ...error) {
+func SendResponse(w http.ResponseWriter, statusCode int, status bool, message string, data interface{}, err ...error) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Authorization")

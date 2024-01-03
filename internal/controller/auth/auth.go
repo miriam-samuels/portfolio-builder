@@ -13,7 +13,6 @@ import (
 )
 
 func SignUp(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("yay entered")
 	cred := &auth.SignUpCredentials{}
 
 	// decode request body and store in cred variable
