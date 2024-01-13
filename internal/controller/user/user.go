@@ -104,7 +104,7 @@ func SetUserInfo(w http.ResponseWriter, r *http.Request) {
 	experience, _ := json.Marshal(userInfo.Experience)
 
 	// execute the statement
-	res, err := stmt.Exec(userInfo.FirstName, userInfo.LastName, userInfo.Email, userInfo.Phone, userInfo.Github, userInfo.Medium, userInfo.Twitter, userInfo.LinkedIn, userInfo.Tagline, userInfo.Objective, userInfo.Theme, string(skills), string(projects), username, string(experience))
+	res, err := stmt.Exec(userInfo.FirstName, userInfo.LastName, userInfo.Email, userInfo.Phone, userInfo.Github, userInfo.Medium, userInfo.Twitter, userInfo.LinkedIn, userInfo.Tagline, userInfo.Objective, userInfo.Theme, string(skills), string(projects), string(experience), username)
 	if err != nil {
 		helper.SendResponse(w, http.StatusInternalServerError, false, "error encoutered", nil, err)
 		return
