@@ -45,9 +45,10 @@ func GetUserInfo(w http.ResponseWriter, r *http.Request) {
 	// variable to store column from db
 	var skills string
 	var projects string
+	var experience string
 
 	// copy column into var
-	err := row.Scan(&user.Id, &user.Username, &user.Password, &user.Email, &user.FirstName, &user.LastName, &user.Phone, &user.Github, &user.Medium, &user.Twitter, &user.LinkedIn, &user.Objective, &user.Tagline, &user.Theme, &skills, &projects)
+	err := row.Scan(&user.Id, &user.Username, &user.Password, &user.Email, &user.FirstName, &user.LastName, &user.Phone, &user.Github, &user.Medium, &user.Twitter, &user.LinkedIn, &user.Objective, &user.Tagline, &user.Theme, &skills, &projects, &experience)
 	if err != nil {
 		// check if no rows is returned and handle it
 		if err == sql.ErrNoRows {
@@ -65,6 +66,7 @@ func GetUserInfo(w http.ResponseWriter, r *http.Request) {
 	// what is coming from the db is json so it unmarshals it types golang understands
 	json.Unmarshal([]byte(skills), &user.Skills)
 	json.Unmarshal([]byte(projects), &user.Projects)
+	json.Unmarshal([]byte(experience), &user.Experience)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -88,7 +90,7 @@ func SetUserInfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// prepare query statement
-	stmt, err := db.Portfolio.Prepare("UPDATE users SET first_name=$1, last_name=$2, email=$3, phone=$4, github=$5, medium=$6, twitter=$7, linkedin=$8, tagline=$9, objective=$10, theme=$11, skills=$12, projects=$13 WHERE username=$14")
+	stmt, err := db.Portfolio.Prepare("UPDATE users SET first_name=$1, last_name=$2, email=$3, phone=$4, github=$5, medium=$6, twitter=$7, linkedin=$8, tagline=$9, objective=$10, theme=$11, skills=$12, projects=$13, experience=$14 WHERE username=$15")
 	if err != nil {
 		helper.SendResponse(w, http.StatusInternalServerError, false, "error encoutered", nil, err)
 		return
@@ -99,9 +101,10 @@ func SetUserInfo(w http.ResponseWriter, r *http.Request) {
 	// converts struct back to json to be able to store in db
 	skills, _ := json.Marshal(userInfo.Skills)
 	projects, _ := json.Marshal(userInfo.Projects)
+	experience, _ := json.Marshal(userInfo.Experience)
 
 	// execute the statement
-	res, err := stmt.Exec(userInfo.FirstName, userInfo.LastName, userInfo.Email, userInfo.Phone, userInfo.Github, userInfo.Medium, userInfo.Twitter, userInfo.LinkedIn, userInfo.Tagline, userInfo.Objective, userInfo.Theme, string(skills), string(projects), username)
+	res, err := stmt.Exec(userInfo.FirstName, userInfo.LastName, userInfo.Email, userInfo.Phone, userInfo.Github, userInfo.Medium, userInfo.Twitter, userInfo.LinkedIn, userInfo.Tagline, userInfo.Objective, userInfo.Theme, string(skills), string(projects), username, string(experience))
 	if err != nil {
 		helper.SendResponse(w, http.StatusInternalServerError, false, "error encoutered", nil, err)
 		return

@@ -21,5 +21,6 @@ CREATE TABLE users(
         "interest": []
     }',
    projects TEXT DEFAULT '[]'
+   experience TEXT DEFAULT '[]'
 );
 
