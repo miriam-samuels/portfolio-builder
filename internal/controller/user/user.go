@@ -114,9 +114,8 @@ func SetUserInfo(w http.ResponseWriter, r *http.Request) {
 	rows, _ := res.RowsAffected()
 
 	if rows < 1 {
-		helper.SendResponse(w, http.StatusBadRequest, false, "user does not exist", nil)
+		helper.SendResponse(w, http.StatusBadRequest, false, "user" + username + "does not exist", nil)
 	} else {
 		helper.SendResponse(w, http.StatusOK, true, "user updated successfully", nil)
-
 	}
 }
